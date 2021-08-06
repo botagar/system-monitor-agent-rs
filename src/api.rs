@@ -1,8 +1,9 @@
-use crate::system;
 use rocket::{State, get, routes};
 use rocket_contrib::json::Json;
 use serde_json::{Value, json};
 use std::sync::{Arc,RwLock};
+
+use crate::system;
 
 #[get("/")]
 pub fn get_full_state(state: State<Arc<RwLock<system::System>>>) -> Json<Value> {
