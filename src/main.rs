@@ -45,6 +45,8 @@ fn quick_loop(loop_period_sec: usize, system_state: Arc<RwLock<System>>) {
         pub idle: f64,
     }
 
+    system_state.write().unwrap().cpu.name = "A CPU".to_string();
+
     let mut cpu_times_prev: Option<CpuTimes> = None;
 
     loop {
@@ -61,6 +63,8 @@ fn quick_loop(loop_period_sec: usize, system_state: Arc<RwLock<System>>) {
                 let delta_cpu_time_idle = current_cpu_time_idle - cpu_time.idle;
 
                 let percent_busy = (1.0 - (delta_cpu_time_idle / delta_cpu_time_total)) * 100.0;
+                
+                system_state.write().unwrap().cpu.load = percent_busy;
 
                 cpu_times_prev = Option::Some(CpuTimes {
                     total: current_cpu_time_total,
