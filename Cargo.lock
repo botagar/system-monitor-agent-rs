@@ -673,6 +673,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "procstat"
+version = "1.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a2fc89593746e7fd101d9e1173e2cacaecf344fe236660126d6f23e3a25ab44"
+
+[[package]]
 name = "quote"
 version = "0.6.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -919,6 +925,7 @@ version = "0.1.0"
 dependencies = [
  "hostname",
  "machine-uid",
+ "procstat",
  "rocket",
  "rocket_contrib",
  "serde",

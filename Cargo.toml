@@ -8,6 +8,7 @@ edition = "2018"
 [dependencies]
 hostname = "^0.3"
 machine-uid = "0.2.0"
+procstat = "1.0.4"
 rocket = "0.4.5"
 rocket_contrib = "0.4.5"
 serde = "1.0"

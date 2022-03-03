@@ -20,3 +20,9 @@ impl Networking {
         networking
     }
 }
+
+impl Default for Networking {
+    fn default() -> Self {
+        Self { hostname: String::default() }
+    }
+}
