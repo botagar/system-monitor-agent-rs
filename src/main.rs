@@ -11,8 +11,10 @@ mod system;
 use std::{sync::{Arc,RwLock}, thread, time::{Duration, Instant}};
 
 use machine_uid;
+use raw_cpuid::CpuId;
 
 use procstat::ProcStat;
+use system::processor::Processor;
 
 use crate::system::System;
 
@@ -35,8 +37,28 @@ fn main() {
 fn initialise_system_state() -> System {
     let mut system_init = System::default();
     system_init.uid = machine_uid::get().unwrap();
+    system_init.cpu = initialise_cpu_info();
 
     system_init
+}
+
+fn initialise_cpu_info() -> Processor {
+    let cpuid = CpuId::new();
+
+    let mut processor = Processor::default();
+
+    processor.vendor = String::from(cpuid.get_vendor_info().unwrap().as_str());
+
+    let cpu_features = cpuid.get_feature_info().unwrap();
+    processor.details.family_id = cpu_features.family_id();
+    processor.details.extended_family_id = cpu_features.extended_family_id();
+    processor.details.model_id = cpu_features.model_id();
+    processor.details.extended_model_id = cpu_features.extended_model_id();
+
+    println!("Vendor: {}", cpuid.get_vendor_info().unwrap().as_str());
+    println!("Vendor: {:?}", cpu_features);
+
+    processor
 }
 
 fn quick_loop(loop_period_sec: usize, system_state: Arc<RwLock<System>>) {
@@ -44,8 +66,6 @@ fn quick_loop(loop_period_sec: usize, system_state: Arc<RwLock<System>>) {
         pub total: f64,
         pub idle: f64,
     }
-
-    system_state.write().unwrap().cpu.name = "A CPU".to_string();
 
     let mut cpu_times_prev: Option<CpuTimes> = None;
 
@@ -64,14 +84,12 @@ fn quick_loop(loop_period_sec: usize, system_state: Arc<RwLock<System>>) {
 
                 let percent_busy = (1.0 - (delta_cpu_time_idle / delta_cpu_time_total)) * 100.0;
                 
-                system_state.write().unwrap().cpu.load = percent_busy;
+                system_state.write().unwrap().cpu.load_percent = f64::trunc(percent_busy * 100.0) / 100.0;
 
                 cpu_times_prev = Option::Some(CpuTimes {
                     total: current_cpu_time_total,
                     idle: current_cpu_time_idle,
                 });
-
-                // println!("CPU Busy: {}", percent_busy);
             }
             None => {
                 let proc_stat_now = ProcStat::read();
@@ -83,7 +101,6 @@ fn quick_loop(loop_period_sec: usize, system_state: Arc<RwLock<System>>) {
                 });
             },
         }
-
 
         let end_loop = Instant::now();
         
